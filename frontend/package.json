@@ -1,0 +1,19 @@
+{
+  "name": "@shopgate/configurable-popup",
+  "version": "1.0.0-beta.1",
+  "description": "Shopgate Configurable Popup Extension",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shopgate-professional-services/ext-configurable-popup.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/shopgate-professional-services/ext-configurable-popup/issues"
+  },
+  "homepage": "https://github.com/shopgate-professional-services/ext-configurable-popup#readme"
+}
