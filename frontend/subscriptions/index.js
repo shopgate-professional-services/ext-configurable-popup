@@ -1,15 +1,19 @@
-import appConfig from '@shopgate/pwa-common/helpers/config';
 import { appDidStart$ } from '@shopgate/pwa-common/streams/app';
 import event from '@shopgate/pwa-core/classes/Event';
-import { increaseAppStartCount, resetAppStartCount } from '../action-creators/appStart';
-import { increaseOrdersPlacedCount, resetOrdersPlacedCount } from '../action-creators/ordersPlaced';
+import { increaseAppStartCount } from '../action-creators/appStart';
+import { increaseOrdersPlacedCount } from '../action-creators/ordersPlaced';
 import {
-  resetTimerState,
   setTimerStartTime,
 } from '../action-creators/timer';
-import { TIMER_TIMESPAN } from '../constants';
+import {
+  TRIGGER_APP_STARTS,
+  TRIGGER_TIME_INTERVAL,
+  TIMER_TIMESPAN,
+  TRIGGER_ORDERS_PLACED,
+} from '../constants';
 import { getPopupState } from '../selectors/popup';
 import { showModal } from '../actions/showModal';
+import { getConfig } from '../helpers';
 
 /**
  * Popup subscriptions
@@ -18,33 +22,47 @@ import { showModal } from '../actions/showModal';
 export default function popup(subscribe) {
   const {
     popup: {
-      appStarts,
-      ordersPlaced,
-      timeInterval,
+      popups,
       rejectionMaxCount,
-      bundleId,
     },
-  } = appConfig;
+  } = getConfig();
 
-  // even subscriber to handle app start ratings
+  // indicators to reset the counters
+  const maxValues = {
+    appStarts: 0,
+    timer: 0,
+    ordersPlaced: 0,
+  };
+
+  // we calculate the maximum values for each type
+  // used for popups.
+  popups.forEach((p) => {
+    switch (p.trigger.type) {
+      case TRIGGER_APP_STARTS:
+        maxValues.appStarts = Math.max(maxValues.appStarts, p.trigger.value);
+        break;
+
+      case TRIGGER_ORDERS_PLACED:
+        maxValues.ordersPlaced = Math.max(maxValues.ordersPlaced, p.trigger.value);
+        break;
+
+      case TRIGGER_TIME_INTERVAL:
+        maxValues.timer = Math.max(maxValues.timer, p.trigger.value);
+        break;
+
+      default:
+        break;
+    }
+  });
+
+  // event subscriber to handle app start popups
   // and also time interval ratings
   subscribe(appDidStart$, async ({ dispatch, getState }) => {
-    if (!bundleId || !bundleId.android || !bundleId.ios) {
-      return;
-    }
-
     // every time the app starts
     // we increase the start count
     dispatch(increaseAppStartCount());
 
     const state = getPopupState(getState());
-
-    // if the user has already rated the app
-    // we'll cancel the operations as we
-    // don't have to show the modal once more
-    if (state.alreadyRated) {
-      return;
-    }
 
     // cancel the process if user has
     // already rejected rating the app
@@ -58,55 +76,57 @@ export default function popup(subscribe) {
       dispatch(setTimerStartTime());
     }
 
-    let mustShowModal = false;
-    let hasRepeats = false;
-    let resetAction = null;
-    let increaseAction = null;
+    /**
+     * @var {any[]}
+     */
+    const filteredPopups = popups.filter(
+      p => [TRIGGER_APP_STARTS, TRIGGER_TIME_INTERVAL].includes(p.trigger.type)
+    );
 
-    if (
-      timeInterval &&
-      Number(timeInterval.value) > 0 &&
-      Number(state.timerStartTimestamp) > 0 &&
-      Date.now() - state.timerStartTimestamp >= (timeInterval.value * TIMER_TIMESPAN)
-    ) {
-      mustShowModal = true;
-      hasRepeats = timeInterval.repeats === null || state.timerRepeatsCount <= timeInterval.repeats;
-      resetAction = resetTimerState;
+    filteredPopups.forEach((filteredPopup) => {
+      let mustShowModal;
 
-      // since the time is elapsed
-      // we reset the starting time
-      increaseAction = setTimerStartTime;
-    } else if (appStarts) {
-      mustShowModal = Number(appStarts.value) > 0 && state.appStartCount >= appStarts.value;
-      hasRepeats = appStarts.repeats === null || state.appStartResetCount <= appStarts.repeats;
-      resetAction = resetAppStartCount;
-      increaseAction = null;
-    }
+      const { trigger } = filteredPopup;
 
-    // the actual show modal logic
-    dispatch(showModal(
-      resetAction,
-      increaseAction,
-      mustShowModal,
-      hasRepeats
-    ));
+      // TODO: check if the popup is eligible for appearance
+      // if (state[popup.id].occurrenceCount >= trigger.occurrenceCount) {
+      //   return
+      // }
+
+      const timeDiff = (Date.now() - state.timerStartTimestamp);
+
+      if (
+        trigger.type === TRIGGER_TIME_INTERVAL &&
+        Number(trigger.value) > 0 &&
+        Number(state.timerStartTimestamp) > 0 &&
+        timeDiff >= (trigger.value * TIMER_TIMESPAN)
+      ) {
+        // TODO: this might have an issue, since the calculation
+        // is thought to be of an integer, meaning that the result
+        // might differ if the max value and time diff are different
+        // for a few milliseconds, which would cause the modulo not to
+        // return 0
+        mustShowModal = Number(trigger.value) > 0 && (timeDiff
+          % (trigger.value * TIMER_TIMESPAN) === 0);
+      } else if (trigger.type === TRIGGER_APP_STARTS) {
+        mustShowModal = Number(trigger.value) > 0 && (state.appStartCount % trigger.value === 0);
+      } else {
+        // to eventually prevent the popping up
+        mustShowModal = false;
+      }
+
+      // the actual show modal logic
+      dispatch(showModal(
+        mustShowModal,
+        filteredPopup
+      ));
+    });
   });
 
   // event subscriber to handle order placed ratings
   subscribe(appDidStart$, ({ dispatch, getState }) => {
     event.addCallback('checkoutSuccess', () => {
-      if (!bundleId || !bundleId.android || !bundleId.ios) {
-        return;
-      }
-
       const state = getPopupState(getState());
-
-      // if the user has already rated the app
-      // we'll cancel the operations as we
-      // don't have to show the modal once more
-      if (state.alreadyRated) {
-        return;
-      }
 
       // cancel the process if user has
       // already rejected rating the app
@@ -115,21 +135,30 @@ export default function popup(subscribe) {
         return;
       }
 
-      if (!ordersPlaced) {
-        return;
-      }
+      /**
+       * @var {any[]}
+       */
+      const filteredPopups = popups.filter(p =>
+        [TRIGGER_ORDERS_PLACED].includes(p.trigger.type));
 
-      // orders placed count starts from 0
-      const mustShowModal = state.ordersPlacedCount === ordersPlaced.value - 1;
-      const hasRepeats = ordersPlaced.repeats === null ||
-        state.ordersPlacedResetCount <= ordersPlaced.repeats;
+      dispatch(increaseOrdersPlacedCount());
 
-      dispatch(showModal(
-        resetOrdersPlacedCount,
-        increaseOrdersPlacedCount,
-        mustShowModal,
-        hasRepeats
-      ));
+      filteredPopups.forEach((filteredPopup) => {
+        const { trigger } = filteredPopup;
+
+        // TODO: check if the popup is eligible for appearance
+        // if (state[popup.id].occurrenceCount >= trigger.occurrenceCount) {
+        //   return
+        // }
+
+        // orders placed count starts from 0
+        const mustShowModal = state.ordersPlacedCount % trigger.value === 0;
+
+        dispatch(showModal(
+          mustShowModal,
+          filteredPopup
+        ));
+      });
     });
   });
 }

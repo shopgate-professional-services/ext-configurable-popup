@@ -12,7 +12,12 @@ export const SET_TIMER_START_TIME = 'SET_TIMER_START_TIME';
 export const SET_LAST_POPUP_TIMESTAMP = 'SET_LAST_POPUP_TIMESTAMP';
 
 export const INCREASE_REJECTION_COUNT = 'INCREASE_REJECTION_COUNT';
-export const SET_ALREADY_RATED = 'SET_ALREADY_RATED';
 
-// currently the timespan is set to a day
+// trigger types, these values must also match
+// those that are used for extension configs.
+export const TRIGGER_APP_STARTS = 'appStarts';
+export const TRIGGER_TIME_INTERVAL = 'timeInterval';
+export const TRIGGER_ORDERS_PLACED = 'ordersPlaced';
+
+// currently the timespan is set to a day in the configs
 export const TIMER_TIMESPAN = 1000 * 60 * 60 * 24;

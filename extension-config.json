@@ -1,0 +1,62 @@
+{
+  "version": "1.0.0-beta.1",
+  "id": "@shopgate/configurable-popup",
+  "components": [
+    {
+      "id": "subscriptions",
+      "path": "frontend/subscriptions/index.js",
+      "type": "subscribers"
+    },
+    {
+      "id": "popup",
+      "path": "frontend/reducers/index.js",
+      "type": "reducers"
+    }
+  ],
+  "configuration": {
+    "popup": {
+      "type": "admin",
+      "destination": "frontend",
+      "default": {
+        "minDaysBetweenPopups": 90,
+        "rejectionMaxCount": 2,
+        "popups": [
+          {
+            "id": "popup1",
+            "content": "<p>HTML Content</p>",
+            "enabled": true,
+            "action": {
+              "label": "Click!",
+              "link": "https://shopgate.com",
+              "title": "popup title"
+            },
+            "trigger": {
+              "type": "appStarts",
+              "value": 1,
+              "occurrenceCount": 1
+            }
+          },
+          {
+            "id": "popup2",
+            "content": "<p>HTML Content</p>",
+            "enabled": true,
+            "action": {
+              "label": "Click!",
+              "link": "https://shopgate.com",
+              "title": "popup title"
+            },
+            "trigger": {
+              "type": "appStarts",
+              "value": 10,
+              "occurrenceCount": 1
+            }
+          }
+        ]
+      },
+      "params": {
+        "type": "json",
+        "label": "App rating settings"
+      }
+    }
+  }
+}

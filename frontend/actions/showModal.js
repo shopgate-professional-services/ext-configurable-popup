@@ -1,46 +1,34 @@
+import React from 'react';
 import showModalAction from '@shopgate/pwa-common/actions/modal/showModal';
-import { getPlatform } from '@shopgate/pwa-common/selectors/client';
 import { historyPush } from '@shopgate/pwa-common/actions/router';
-import appConfig from '@shopgate/pwa-common/helpers/config';
-import { track } from '@shopgate/pwa-tracking/helpers';
 import {
-  increaseRejectionCount,
-  setAlreadyRated,
   setLastPopupTimestamp,
 } from '../action-creators/popup';
 import { TIMER_TIMESPAN } from '../constants';
 import { getPopupState } from '../selectors/popup';
+import { getConfig } from '../helpers';
 
 const {
   popup: {
     minDaysBetweenPopups,
-    popups,
   },
-} = appConfig;
+} = getConfig();
 
 /**
  * to handle the modal confirmation
  * @param {string} url the url to redirect to
- * @param {boolean | null} setRated the url to redirect to
  * @return {(function(*, *): void)|*}
  */
-function redirectTo(url, setRated = false) {
+function redirectTo(url) {
   return (dispatch) => {
     if (!url) {
       return;
     }
 
-    if (setRated) {
-      dispatch(setAlreadyRated(setRated));
-    }
-
     dispatch(historyPush({
       pathname: url,
-      // open appstore as external url and not in inAppBrowser
-      ...setRated && {
-        state: {
-          target: '_blank',
-        },
+      state: {
+        target: '_blank',
       },
     }));
   };
@@ -48,28 +36,21 @@ function redirectTo(url, setRated = false) {
 
 /**
  * shows the actual modal
- * @param {Function} resetAction the reset action function
- * @param {Function} increaseAction the function to increase the appropriate counter
  * @param {boolean} mustShow if the modal must be shown
- * @param {boolean} hasRepeats if the counters has repeats
+ * @param {any} popup the popup to extract the configs from
  * @return {(function(*, *): void)|*}
  */
-export function showModal(resetAction, increaseAction, mustShow, hasRepeats) {
+export function showModal(mustShow, popup) {
   return async (dispatch, getState) => {
+    if (!popup.enabled) {
+      return;
+    }
+
+    if (!mustShow) {
+      return;
+    }
+
     const state = getState();
-
-    // no review link for current platform found -> don't show modal
-    if (!reviewLink) {
-      return;
-    }
-
-    if (!mustShow && hasRepeats && increaseAction) {
-      dispatch(increaseAction());
-    }
-
-    if (!(mustShow && hasRepeats)) {
-      return;
-    }
 
     const popupState = getPopupState(state);
 
@@ -80,55 +61,19 @@ export function showModal(resetAction, increaseAction, mustShow, hasRepeats) {
       return;
     }
 
-    dispatch(resetAction());
     dispatch(setLastPopupTimestamp());
+    // dispatch(increasePopupOccurranceCount(popup.id));
 
-    const firstModalConfirmed = await dispatch(showModalAction({
-      confirm: 'popup.yes',
-      dismiss: 'popup.no',
-      title: 'popup.title',
-      message: 'popup.message',
+    const popupConfirmed = await dispatch(showModalAction({
+      confirm: popup.action.label,
+      title: popup.action.title,
+      // eslint-disable-next-line react/jsx-filename-extension,react/no-danger
+      content: <div dangerouslySetInnerHTML={{ __html: popup.content }} />,
     }));
 
-    track('customEvent', {
-      eventCategory: 'appReviewPrompt',
-      eventAction: 'decision',
-      eventLabel: firstModalConfirmed ? 'yes' : 'no',
-    }, state);
-
-    // user touched yes and we
-    // redirect to store
-    if (firstModalConfirmed) {
-      // dispatch(redirectTo(reviewLink, true));
-      return;
+    // user wants to give feedback
+    if (popupConfirmed) {
+      dispatch(redirectTo(popup.action.link));
     }
-
-    // user doesn't want to rate
-    dispatch(increaseRejectionCount());
-
-    // we approve for rejection
-    if (askForFeedback) {
-      const userGivesFeedback = await dispatch(showModalAction({
-        confirm: 'popup.yes',
-        dismiss: 'popup.no',
-        title: 'popup.title',
-        message: 'popup.rejectionApprovalMessage',
-      }));
-
-      track('customEvent', {
-        eventCategory: 'appReviewPrompt',
-        eventAction: 'decision_feedback',
-        eventLabel: userGivesFeedback ? 'yes' : 'no',
-      }, state);
-
-      // user wants to give feedback
-      if (userGivesFeedback) {
-        dispatch(redirectTo(feedbackLink));
-      }
-
-      return;
-    }
-
-    dispatch(redirectTo(feedbackLink));
   };
 }
