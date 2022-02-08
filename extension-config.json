@@ -1,6 +1,6 @@
 {
   "version": "1.0.0-beta.1",
-  "id": "@shopgate/configurable-popup",
+  "id": "@shopgate-project/configurable-popup",
   "components": [
     {
       "id": "subscriptions",
