@@ -1,14 +1,14 @@
 import {
   SET_TIMER_START_TIME,
-  INCREASE_TIMER_REPEATS,
+  RESET_TIMER_START_TIME,
 } from '../constants';
 
 /**
  * Reset the orders placed count, and increment reset counts
  * @return {Object} The dispatched action object.
  */
-export const resetTimerState = () => ({
-  type: INCREASE_TIMER_REPEATS,
+export const resetTimerStartTime = () => ({
+  type: RESET_TIMER_START_TIME,
 });
 
 /**
