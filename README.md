@@ -6,7 +6,7 @@ If the user clicks the confirm button, then a link will be opened in the inAppBr
 ## Configuration
 
 In the extension-config.json file you can configure your own popups.
-All popups must be added to popups array
+All popups must be added to popups array.
 > configuration -> popup -> default -> popups
 
 ### Example config
@@ -42,7 +42,7 @@ All popups must be added to popups array
 - enabled: if false, this popup will be ignored
 - button:
   - confirmLabel: the label for the confirm button
-  - dismissLabel: the label for the dismiss button
+  - dismissLabel: the label for the dismiss button (optional)
 - action:
   - link: a link which will be opened in the inAppBrowser, if the user clicks the confirm button
 - trigger:
