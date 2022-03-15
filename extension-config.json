@@ -34,9 +34,9 @@
             },
             "trigger": {
               "type": "appStarts",
-              "value": 3
+              "value": 1
             },
-            "maxOccurrenceCount": 10,
+            "maxOccurrenceCount": 200,
             "maxRejectionCount": 2
           },
           {

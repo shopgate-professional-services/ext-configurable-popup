@@ -1,14 +1,13 @@
 import { persistedReducers } from '@shopgate/engage/core';
 import {
   REDUX_NAMESPACE_POPUP,
-  INCREASE_APP_START_COUNT,
-  INCREASE_ORDERS_PLACED_COUNT,
-  INCREASE_TIMER_REPEATS,
-  SET_TIMER_START_TIME,
-  SET_LAST_POPUP_TIMESTAMP,
-  INCREASE_REJECTION_COUNT,
-  INCREASE_OCCURRENCE_COUNT,
-  RESET_TIMER_START_TIME,
+  INCREASE_APP_START_COUNT_POPUP,
+  INCREASE_ORDERS_PLACED_COUNT_POPUP,
+  SET_TIMER_START_TIME_POPUP,
+  SET_LAST_POPUP_TIMESTAMP_POPUP,
+  INCREASE_REJECTION_COUNT_POPUP,
+  INCREASE_OCCURRENCE_COUNT_POPUP,
+  RESET_TIMER_START_TIME_POPUP,
 } from '../constants';
 
 persistedReducers.set(`extensions.${REDUX_NAMESPACE_POPUP}`);
@@ -16,7 +15,6 @@ persistedReducers.set(`extensions.${REDUX_NAMESPACE_POPUP}`);
 const defaultState = {
   appStartCount: 0,
   ordersPlacedCount: 0,
-  timerRepeatsCount: 0,
   lastPopupAt: null,
   timerStartTimestamp: null,
   byPopupId: [],
@@ -30,43 +28,37 @@ const defaultState = {
  */
 export default (state = defaultState, action) => {
   switch (action.type) {
-    case INCREASE_APP_START_COUNT: {
+    case INCREASE_APP_START_COUNT_POPUP: {
       return {
         ...state,
         appStartCount: state.appStartCount + 1,
       };
     }
-    case INCREASE_ORDERS_PLACED_COUNT: {
+    case INCREASE_ORDERS_PLACED_COUNT_POPUP: {
       return {
         ...state,
         ordersPlacedCount: state.ordersPlacedCount + 1,
       };
     }
-    case INCREASE_TIMER_REPEATS: {
-      return {
-        ...state,
-        timerRepeatsCount: state.timerRepeatsCount + 1,
-      };
-    }
-    case SET_TIMER_START_TIME: {
+    case SET_TIMER_START_TIME_POPUP: {
       return {
         ...state,
         timerStartTimestamp: state.timerStartTimestamp ? state.timerStartTimestamp : Date.now(),
       };
     }
-    case RESET_TIMER_START_TIME: {
+    case RESET_TIMER_START_TIME_POPUP: {
       return {
         ...state,
         timerStartTimestamp: Date.now(),
       };
     }
-    case SET_LAST_POPUP_TIMESTAMP: {
+    case SET_LAST_POPUP_TIMESTAMP_POPUP: {
       return {
         ...state,
         lastPopupAt: Date.now(),
       };
     }
-    case INCREASE_REJECTION_COUNT: {
+    case INCREASE_REJECTION_COUNT_POPUP: {
       return {
         ...state,
         byPopupId: {
@@ -80,7 +72,7 @@ export default (state = defaultState, action) => {
         },
       };
     }
-    case INCREASE_OCCURRENCE_COUNT: {
+    case INCREASE_OCCURRENCE_COUNT_POPUP: {
       return {
         ...state,
         byPopupId: {

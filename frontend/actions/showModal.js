@@ -11,7 +11,7 @@ import {
 /**
  * to handle the modal confirmation
  * @param {string} url the url to redirect to
- * @return {(function(*, *): void)|*}
+ * @return {Function}
  */
 function redirectTo(url) {
   return (dispatch) => {
@@ -20,17 +20,14 @@ function redirectTo(url) {
     }
     dispatch(historyPush({
       pathname: url,
-      state: {
-        target: '_blank',
-      },
     }));
   };
 }
 
 /**
  * shows the actual modal
- * @param {any} popup the popup to extract the configs from
- * @return {(function(*, *): void)|*}
+ * @param {Object} popup the popup to extract the configs from
+ * @return {Function}
  */
 export function showModal(popup) {
   return async (dispatch, state) => {
@@ -46,7 +43,7 @@ export function showModal(popup) {
     }));
 
     track('customEvent', {
-      eventCategory: 'extConfigurablePopup',
+      eventCategory: 'configurablePopup',
       eventAction: `popup.${popup.id}`,
       eventLabel: popupConfirmed ? 'confirmed' : 'dismissed',
     }, state);
