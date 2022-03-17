@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0-beta.1",
+  "id": "@shopgate-project/configurable-popup",
+  "components": [
+    {
+      "id": "subscriptions",
+      "path": "frontend/subscriptions/index.js",
+      "type": "subscribers"
+    },
+    {
+      "id": "popup",
+      "path": "frontend/reducers/index.js",
+      "type": "reducers"
+    }
+  ],
+  "configuration": {
+    "popup": {
+      "type": "admin",
+      "destination": "frontend",
+      "default": {
+        "minDaysBetweenPopups": 0,
+        "popups": []
+      },
+      "params": {
+        "type": "json",
+        "label": "Configurable popup settings"
+      }
+    }
+  }
+}
