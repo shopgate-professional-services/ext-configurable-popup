@@ -5,35 +5,6 @@ If the user clicks the confirm button, then a link will be opened in the inAppBr
 
 ## Configuration
 
-In the extension-config.json file you can configure your own popups.
-All popups must be added to popups array.
-> configuration -> popup -> default -> popups
-
-### Example config
-
-```
-{
-  "id": "uniquePopupId",
-  "title": "Popup title",
-  "content": "<p>HTML Content</p>",
-  "enabled": true,
-  "button": {
-    "confirmLabel": "Click!",
-    "dismissLabel": "Cancel"
-  },
-  "action": {
-    "link": "https://shopgate.com"
-  },
-  "trigger": {
-    "type": "appStarts",
-    "value": 1
-  },
-  "maxOccurrenceCount": 1,
-  "maxRejectionCount": 2
-}
-
-```
-
 ### Config explanation
 
 - id: some unique id
@@ -60,16 +31,41 @@ All popups must be added to popups array.
 - type ordersPlaced with value 4
   - the popup will be shown after every fourth successful checkout
 
-## About Shopgate	
+### Example config
 
-Shopgate is the leading mobile commerce platform.	
+```
+{
+  "id": "uniquePopupId",
+  "title": "Popup title",
+  "content": "<p>HTML Content</p>",
+  "enabled": true,
+  "button": {
+    "confirmLabel": "Click!",
+    "dismissLabel": "Cancel"
+  },
+  "action": {
+    "link": "https://shopgate.com"
+  },
+  "trigger": {
+    "type": "appStarts",
+    "value": 1
+  },
+  "maxOccurrenceCount": 1,
+  "maxRejectionCount": 2
+}
 
-Shopgate offers everything online retailers need to be successful in mobile. Our leading	
-software-as-a-service (SaaS) enables online stores to easily create, maintain and optimize native	
-apps and mobile websites for the iPhone, iPad, Android smartphones and tablets.	
+```
 
-## License	
+## About Shopgate
 
-Shopgate Connect - Configurable popup is available under the Apache License, Version 2.0.	
+Shopgate is the leading mobile commerce platform.
+
+Shopgate offers everything online retailers need to be successful in mobile. Our leading
+software-as-a-service (SaaS) enables online stores to easily create, maintain and optimize native
+apps and mobile websites for the iPhone, iPad, Android smartphones and tablets.
+
+## License
+
+Shopgate Connect - Configurable popup is available under the Apache License, Version 2.0.
 
 See the [LICENSE](./LICENSE) file for more information.
