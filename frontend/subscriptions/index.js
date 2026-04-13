@@ -75,10 +75,6 @@ export default function popupSubscriptions(subscribe) {
 
   // event subscriber to handle order placed ratings
   subscribe(appDidStart$, ({ dispatch }) => {
-    if (IS_PAGE_PREVIEW_ACTIVE) {
-      return;
-    }
-
     event.addCallback('checkoutSuccess', () => {
       // increase the orders placed count
       dispatch(increaseOrdersPlacedCount());
