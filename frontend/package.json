@@ -8,12 +8,9 @@
     "lint": "eslint --parser babel-eslint --ignore-path ../.gitignore --ext .js --ext .jsx ."
   },
   "devDependencies": {
-    "@shopgate/engage": "^6.18.7",
-    "@shopgate/eslint-config": "^6.18.7",
-    "eslint": "^6.8.0"
-  },
-  "peerDependencies": {
-    "@shopgate/engage": "^6.19.0-rc.2"
+    "@shopgate/engage": "^7.30.0",
+    "@shopgate/eslint-config": "^7.30.0",
+    "eslint": "^8.57.1"
   },
   "repository": {
     "type": "git",

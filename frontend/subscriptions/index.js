@@ -1,5 +1,6 @@
-import { appDidStart$ } from '@shopgate/pwa-common/streams/app';
-import event from '@shopgate/pwa-core/classes/Event';
+import { appDidStart$ } from '@shopgate/engage/core/streams';
+import { event } from '@shopgate/engage/core/classes';
+import { IS_PAGE_PREVIEW_ACTIVE } from '@shopgate/engage/page/constants';
 import { increaseAppStartCount } from '../action-creators/appStart';
 import { increaseOrdersPlacedCount } from '../action-creators/ordersPlaced';
 import {
@@ -54,6 +55,10 @@ function checkConditionsAndShowModal(types) {
  * @param {Function} subscribe The subscribe function
  */
 export default function popupSubscriptions(subscribe) {
+  if (IS_PAGE_PREVIEW_ACTIVE) {
+    return;
+  }
+
   // event subscriber to handle app start popups
   // and also time interval ratings
   subscribe(appDidStart$, async ({ dispatch }) => {
